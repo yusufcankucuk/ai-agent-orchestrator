@@ -1,0 +1,78 @@
+// Run with a local Playwright installation: PLAYWRIGHT_PATH=/path/to/playwright node tests/browser.cjs
+const { chromium } = require(process.env.PLAYWRIGHT_PATH || 'playwright');
+const assert = require('node:assert/strict');
+require('node:fs').mkdirSync('artifacts', {recursive:true});
+(async () => {
+  const browser = await chromium.launch({channel: 'chrome', headless: true});
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  const errors = [];
+  page.on('pageerror', error => errors.push(error.message));
+  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
+  const add = async text => { await page.locator('#new-task').fill(text); await page.locator('#new-task').press('Enter'); };
+  const count = async n => assert.equal(await page.locator('.task').count(), n);
+  await page.goto('http://localhost:5173');
+  assert.equal(await page.locator('#empty').isVisible(), true);
+  for (const width of [360, 1440]) {
+    await page.setViewportSize({width, height:900});
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    await page.screenshot({path:`artifacts/empty-${width}.png`, fullPage:true});
+  }
+  await add('   '); await count(0);
+  await add('Kitabı bitir'); await add('Yürüyüş yap'); await count(2);
+  await page.locator('.task').first().getByRole('button', {name: /düzenle/}).click();
+  await page.getByRole('textbox', {name: 'Görev metni'}).fill('Kitabı oku');
+  await page.locator('[data-filter=done]').click();
+  await page.locator('[data-filter=all]').click();
+  assert.equal(await page.getByRole('textbox', {name:'Görev metni'}).inputValue(), 'Kitabı oku');
+  for (const width of [360, 1440]) {
+    await page.setViewportSize({width, height:900});
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+    await page.screenshot({path:`artifacts/edit-${width}.png`, fullPage:true});
+  }
+  await page.getByRole('textbox', {name: 'Görev metni'}).press('Enter');
+  assert.equal(await page.locator('.task-text').first().textContent(), 'Kitabı oku');
+  await page.locator('.task').first().getByRole('button', {name: /düzenle/}).click();
+  await page.getByRole('textbox', {name: 'Görev metni'}).fill('Vazgeç');
+  await page.getByRole('textbox', {name: 'Görev metni'}).press('Escape');
+  assert.equal(await page.locator('.task-text').first().textContent(), 'Kitabı oku');
+  await page.locator('.task input').first().check();
+  await page.locator('[data-filter=active]').click(); await count(1);
+  await page.locator('[data-filter=done]').click(); await count(1);
+  await page.reload(); await count(2);
+  assert.equal(await page.locator('.task input').first().isChecked(), true);
+  await page.locator('.task').first().getByRole('button', {name: /sil/}).click();
+  await add('Yeni görev');
+  await page.locator('#undo').click(); await count(3);
+  assert.deepEqual(await page.locator('.task-text').allTextContents(), ['Kitabı oku', 'Yürüyüş yap', 'Yeni görev']);
+  const payload = '<img src=x onerror="window.hacked=true">';
+  await add(payload);
+  assert.equal(await page.locator('.task-text').last().textContent(), payload);
+  assert.equal(await page.locator('#tasks img').count(), 0);
+  await add('Uzun'.repeat(100));
+  await page.setViewportSize({width:360,height:800});
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await page.screenshot({path:'artifacts/mobile.png',fullPage:true});
+  await page.setViewportSize({width:1440,height:1000});
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true);
+  await page.screenshot({path:'artifacts/desktop.png',fullPage:true});
+  await page.evaluate(() => localStorage.setItem('yapilacaklar.v1', '{broken'));
+  await page.reload();
+  assert.equal(await page.locator('#storage-error').isVisible(), true);
+  await add('Kayıt korunmalı');
+  assert.equal(await page.evaluate(() => localStorage.getItem('yapilacaklar.v1')), '{broken');
+  await page.evaluate(() => localStorage.removeItem('yapilacaklar.v1'));
+  await page.reload();
+  await page.evaluate(() => { Storage.prototype.setItem = () => { throw new DOMException('Quota exceeded', 'QuotaExceededError'); }; });
+  await add('Kaydedilemeyen görev');
+  assert.equal(await page.locator('#storage-error').isVisible(), true);
+  await count(1);
+  const blocked = await browser.newContext();
+  await blocked.addInitScript(() => { Object.defineProperty(window, 'localStorage', {get() { throw new DOMException('Blocked', 'SecurityError'); }}); });
+  const blockedPage = await blocked.newPage();
+  await blockedPage.goto('http://localhost:5173');
+  assert.equal(await blockedPage.locator('#storage-error').isVisible(), true);
+  assert.deepEqual(errors, []);
+  await browser.close();
+  console.log('PASS: CRUD, filters, undo, persistence, HTML safety, mobile overflow, corrupt/blocked storage and write failure; no console errors.');
+})().catch(error => { console.error(error); process.exit(1); });

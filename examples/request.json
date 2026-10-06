@@ -1,0 +1,9 @@
+{
+  "goal": "Design, implement and review a rate limiter",
+  "limits": { "maxWorkers": 2, "maxRetries": 1, "maxBudgetUsd": 0.5 },
+  "tasks": [
+    { "id": "design", "role": "architecture", "capability": "reasoning", "prompt": "Propose a minimal rate limiter design." },
+    { "id": "implement", "role": "coding", "capability": "code", "prompt": "Implement the proposed design.", "dependencies": ["design"] },
+    { "id": "review", "role": "review", "capability": "analysis", "prompt": "Review the implementation for correctness.", "dependencies": ["implement"] }
+  ]
+}

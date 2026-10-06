@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>Orkestra</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css?v=8">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+</head>
+<body>
+  <header>
+    <button id="new-chat" class="icon-button" type="button" aria-label="Yeni sohbet" title="Yeni sohbet">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a9 9 0 1 0 8.5 6h-2.1A7 7 0 1 1 12 5c1.7 0 3.2.6 4.4 1.6L13 10h8V2l-3.2 3.2A8.9 8.9 0 0 0 12 3Z"/></svg>
+    </button>
+    <nav class="tabs" aria-label="Görünüm">
+      <button class="tab active" type="button" data-view="chat" aria-current="page">Sohbet</button>
+      <button class="tab" type="button" data-view="models">Ayarlar</button>
+    </nav>
+    <button id="mode-toggle" class="mode-toggle" type="button" aria-pressed="true">
+      <i aria-hidden="true"></i><span>Orkestra</span>
+    </button>
+  </header>
+
+  <main id="app" class="app">
+    <section id="chat-view" class="view chat-view">
+      <section id="conversation" class="conversation" aria-live="polite"></section>
+      <form id="project-form" class="composer">
+        <label class="sr-only" for="goal">Projenizi anlatın</label>
+        <textarea id="goal" rows="1" maxlength="10000" required autofocus placeholder="Ne yapmak istiyorsun?"></textarea>
+        <button id="run-button" class="send" type="submit" aria-label="Gönder">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 4-7 7 1.4 1.4 4.6-4.6V20h2V7.8l4.6 4.6L19 11l-7-7Z"/></svg>
+        </button>
+        <button id="stop-button" class="send stop" type="button" aria-label="Sohbeti durdur" hidden><i aria-hidden="true"></i></button>
+      </form>
+    </section>
+    <section id="models-view" class="view models-view" hidden>
+      <div class="models-intro">
+        <h1>Çalışma alanı</h1>
+        <p>Ajanın üzerinde çalışacağı proje klasörünü seç.</p>
+      </div>
+      <form id="workspace-form" class="workspace-form">
+        <label for="workspace-path">Proje klasörü</label>
+        <div>
+          <input id="workspace-path" type="text" maxlength="4096" autocomplete="off" spellcheck="false" required>
+          <button id="workspace-picker" class="secondary" type="button">Gözat</button>
+          <button id="workspace-save" type="submit">Kullan</button>
+        </div>
+        <small id="workspace-status" aria-live="polite"></small>
+      </form>
+      <div class="settings-heading usage-heading">
+        <div><h2>Kalan kullanım</h2><p id="usage-updated" aria-live="polite">Açık modeller için güncel üyelik limitleri.</p></div>
+        <button id="usage-refresh" class="text-button" type="button">Yenile</button>
+      </div>
+      <div id="usage-list" class="usage-list" aria-live="polite"></div>
+      <div class="settings-heading"><h2>Modeller</h2><p>Yeni görevlerde hangi üyeliklerin kullanılacağını seç.</p></div>
+      <div id="provider-list" class="provider-list" aria-live="polite"></div>
+      <p class="models-note">Değişiklikler çalışan görevi etkilemez; sonraki aşamada uygulanır.</p>
+    </section>
+  </main>
+  <aside class="chat-sidebar" aria-label="Sohbet geçmişi">
+    <div class="chat-sidebar-heading"><strong>Sohbetler</strong><button id="sidebar-new-chat" type="button" aria-label="Yeni sohbet">+</button></div>
+    <div id="chat-list" class="chat-list"></div>
+  </aside>
+  <script src="/app.js?v=8" defer></script>
+</body>
+</html>

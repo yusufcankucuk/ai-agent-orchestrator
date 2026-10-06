@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="tr">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#EEF4FA"><title>Yapılacaklar</title><link rel="icon" type="image/svg+xml" href="/favicon.svg"></head>
+<body>
+  <div class="page">
+    <header class="masthead"><a href="./" class="wordmark" aria-label="Yapılacaklar ana sayfa"><span class="brand-check" aria-hidden="true">✓</span> yapılacaklar</a><span class="personal">Kişisel liste</span></header>
+    <main>
+      <p>Merhaba!</p>
+      <div class="heading"><h1>Yapılacaklar</h1></div>
+      <form id="add-form" class="add-form"><label class="sr-only" for="new-task">Yeni görev</label><span class="plus" aria-hidden="true">+</span><input id="new-task" placeholder="Aklında ne var?" autocomplete="off" maxlength="500" required><button class="primary" type="submit">Ekle <span aria-hidden="true">↵</span></button></form>
+      <p id="storage-error" role="alert" hidden></p>
+      <div class="list-toolbar"><nav aria-label="Görev filtreleri"><button type="button" data-filter="all" aria-pressed="true">Tümü <span>0</span></button><button type="button" data-filter="active" aria-pressed="false">Yapılacak <span>0</span></button><button type="button" data-filter="done" aria-pressed="false">Tamamlanan <span>0</span></button></nav></div>
+      <ul id="tasks" aria-label="Görevler"></ul>
+      <div id="empty"><h2>Listen henüz boş.</h2><p>İlk görevini yukarıya yazıp Enter’a bas.</p></div>
+      <div id="notification" role="status" aria-live="polite"><span id="message"></span><button id="undo" type="button" hidden>Son silinen görevi geri al</button></div>
+    </main>
+    <footer><span class="footer-dot" aria-hidden="true"></span> Bu tarayıcıda saklanır.</footer>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body></html>

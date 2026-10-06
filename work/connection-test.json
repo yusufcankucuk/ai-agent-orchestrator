@@ -1,0 +1,28 @@
+{
+  "goal": "Verify the two subscription model connections",
+  "limits": {
+    "maxWorkers": 2,
+    "maxRetries": 0,
+    "maxBudgetUsd": 1
+  },
+  "tasks": [
+    {
+      "id": "chatgpt",
+      "role": "general",
+      "capability": "reasoning",
+      "prompt": "Reply with exactly: CHATGPT_OK",
+      "preferredProvider": "openai",
+      "preferredModel": "chatgpt-plan",
+      "maxOutputTokens": 20
+    },
+    {
+      "id": "gemini",
+      "role": "research",
+      "capability": "analysis",
+      "prompt": "Reply with exactly: GEMINI_OK",
+      "preferredProvider": "gemini",
+      "preferredModel": "gemini-3.8-flash-high",
+      "maxOutputTokens": 20
+    }
+  ]
+}
